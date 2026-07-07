@@ -431,6 +431,8 @@ export const CheckAiStatusResponse = zod.object({
   "ollamaAvailable": zod.boolean(),
   "ollamaUrl": zod.string().optional(),
   "models": zod.array(zod.string()).optional(),
+  "huggingfaceAvailable": zod.boolean(),
+  "huggingfaceModel": zod.string().optional(),
   "ttsAvailable": zod.boolean(),
   "ttsEngine": zod.string().optional()
 })
@@ -441,8 +443,11 @@ export const CheckAiStatusResponse = zod.object({
  */
 export const GetSettingsResponse = zod.object({
   "id": zod.number(),
+  "aiProvider": zod.string().optional(),
   "ollamaUrl": zod.string().optional(),
   "ollamaModel": zod.string().optional(),
+  "huggingfaceApiKeySet": zod.boolean().optional(),
+  "huggingfaceModel": zod.string().optional(),
   "ttsEngine": zod.string().optional(),
   "youtubeApiKeySet": zod.boolean().optional(),
   "youtubeChannelId": zod.string().nullish(),
@@ -456,8 +461,11 @@ export const GetSettingsResponse = zod.object({
  * @summary Update application settings
  */
 export const UpdateSettingsBody = zod.object({
+  "aiProvider": zod.string().optional(),
   "ollamaUrl": zod.string().optional(),
   "ollamaModel": zod.string().optional(),
+  "huggingfaceApiKey": zod.string().optional(),
+  "huggingfaceModel": zod.string().optional(),
   "ttsEngine": zod.string().optional(),
   "youtubeApiKey": zod.string().optional(),
   "youtubeChannelId": zod.string().optional(),
@@ -468,8 +476,11 @@ export const UpdateSettingsBody = zod.object({
 
 export const UpdateSettingsResponse = zod.object({
   "id": zod.number(),
+  "aiProvider": zod.string().optional(),
   "ollamaUrl": zod.string().optional(),
   "ollamaModel": zod.string().optional(),
+  "huggingfaceApiKeySet": zod.boolean().optional(),
+  "huggingfaceModel": zod.string().optional(),
   "ttsEngine": zod.string().optional(),
   "youtubeApiKeySet": zod.boolean().optional(),
   "youtubeChannelId": zod.string().nullish(),

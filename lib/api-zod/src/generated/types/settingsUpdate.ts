@@ -7,8 +7,11 @@
  */
 
 export interface SettingsUpdate {
+  aiProvider?: string;
   ollamaUrl?: string;
   ollamaModel?: string;
+  huggingfaceApiKey?: string;
+  huggingfaceModel?: string;
   ttsEngine?: string;
   youtubeApiKey?: string;
   youtubeChannelId?: string;

@@ -118,14 +118,19 @@ export interface AiStatus {
   ollamaAvailable: boolean;
   ollamaUrl?: string;
   models?: string[];
+  huggingfaceAvailable: boolean;
+  huggingfaceModel?: string;
   ttsAvailable: boolean;
   ttsEngine?: string;
 }
 
 export interface Settings {
   id: number;
+  aiProvider?: string;
   ollamaUrl?: string;
   ollamaModel?: string;
+  huggingfaceApiKeySet?: boolean;
+  huggingfaceModel?: string;
   ttsEngine?: string;
   youtubeApiKeySet?: boolean;
   /** @nullable */
@@ -136,8 +141,11 @@ export interface Settings {
 }
 
 export interface SettingsUpdate {
+  aiProvider?: string;
   ollamaUrl?: string;
   ollamaModel?: string;
+  huggingfaceApiKey?: string;
+  huggingfaceModel?: string;
   ttsEngine?: string;
   youtubeApiKey?: string;
   youtubeChannelId?: string;

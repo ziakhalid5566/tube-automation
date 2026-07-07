@@ -17,8 +17,11 @@ async function ensureSettings() {
 function maskSettings(s: typeof settingsTable.$inferSelect) {
   return {
     id: s.id,
+    aiProvider: s.aiProvider,
     ollamaUrl: s.ollamaUrl,
     ollamaModel: s.ollamaModel,
+    huggingfaceApiKeySet: !!s.huggingfaceApiKey,
+    huggingfaceModel: s.huggingfaceModel,
     ttsEngine: s.ttsEngine,
     youtubeApiKeySet: !!s.youtubeApiKey,
     youtubeChannelId: s.youtubeChannelId,

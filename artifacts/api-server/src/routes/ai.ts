@@ -1,17 +1,19 @@
 import { Router, type IRouter } from "express";
-import { checkOllama, getSettings } from "../lib/ai";
+import { checkOllama, checkHuggingFace, getSettings } from "../lib/ai";
 import { execFile } from "child_process";
 import { promisify } from "util";
 
 const execFileAsync = promisify(execFile);
-
 const router: IRouter = Router();
 
 router.get("/ai/check", async (_req, res): Promise<void> => {
   const settings = await getSettings();
-  const ollamaResult = await checkOllama();
 
-  // Check TTS availability
+  const [ollamaResult, hfResult] = await Promise.all([
+    checkOllama(),
+    checkHuggingFace(),
+  ]);
+
   let ttsAvailable = false;
   const ttsEngine = settings.ttsEngine || "edge-tts";
   try {
@@ -22,7 +24,6 @@ router.get("/ai/check", async (_req, res): Promise<void> => {
       await execFileAsync("python3", ["-c", "import pyttsx3"], { timeout: 5000 });
       ttsAvailable = true;
     } else {
-      // ffmpeg always available as fallback
       await execFileAsync("ffmpeg", ["-version"], { timeout: 5000 });
       ttsAvailable = true;
     }
@@ -34,6 +35,8 @@ router.get("/ai/check", async (_req, res): Promise<void> => {
     ollamaAvailable: ollamaResult.available,
     ollamaUrl: settings.ollamaUrl,
     models: ollamaResult.models,
+    huggingfaceAvailable: hfResult.available,
+    huggingfaceModel: hfResult.model,
     ttsAvailable,
     ttsEngine,
   });

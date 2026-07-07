@@ -10,6 +10,8 @@ export interface AiStatus {
   ollamaAvailable: boolean;
   ollamaUrl?: string;
   models?: string[];
+  huggingfaceAvailable: boolean;
+  huggingfaceModel?: string;
   ttsAvailable: boolean;
   ttsEngine?: string;
 }

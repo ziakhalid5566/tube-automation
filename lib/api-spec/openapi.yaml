@@ -506,7 +506,7 @@ components:
 
     AiStatus:
       type: object
-      required: [ollamaAvailable, ttsAvailable]
+      required: [ollamaAvailable, ttsAvailable, huggingfaceAvailable]
       properties:
         ollamaAvailable:
           type: boolean
@@ -516,6 +516,10 @@ components:
           type: array
           items:
             type: string
+        huggingfaceAvailable:
+          type: boolean
+        huggingfaceModel:
+          type: string
         ttsAvailable:
           type: boolean
         ttsEngine:
@@ -527,9 +531,15 @@ components:
       properties:
         id:
           type: integer
+        aiProvider:
+          type: string
         ollamaUrl:
           type: string
         ollamaModel:
+          type: string
+        huggingfaceApiKeySet:
+          type: boolean
+        huggingfaceModel:
           type: string
         ttsEngine:
           type: string
@@ -547,9 +557,15 @@ components:
     SettingsUpdate:
       type: object
       properties:
+        aiProvider:
+          type: string
         ollamaUrl:
           type: string
         ollamaModel:
+          type: string
+        huggingfaceApiKey:
+          type: string
+        huggingfaceModel:
           type: string
         ttsEngine:
           type: string

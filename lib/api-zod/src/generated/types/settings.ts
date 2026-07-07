@@ -8,8 +8,11 @@
 
 export interface Settings {
   id: number;
+  aiProvider?: string;
   ollamaUrl?: string;
   ollamaModel?: string;
+  huggingfaceApiKeySet?: boolean;
+  huggingfaceModel?: string;
   ttsEngine?: string;
   youtubeApiKeySet?: boolean;
   /** @nullable */
