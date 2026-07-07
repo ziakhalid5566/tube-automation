@@ -3,20 +3,29 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: YouTube Automation System API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: projects
+    description: YouTube automation projects
+  - name: videos
+    description: Video generation and management
+  - name: ai
+    description: AI generation endpoints
+  - name: youtube
+    description: YouTube upload and management
+  - name: settings
+    description: Application settings
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +33,360 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /projects:
+    get:
+      operationId: listProjects
+      tags: [projects]
+      summary: List all automation projects
+      responses:
+        "200":
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+    post:
+      operationId: createProject
+      tags: [projects]
+      summary: Create a new automation project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+
+  /projects/{id}:
+    get:
+      operationId: getProject
+      tags: [projects]
+      summary: Get a project by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Project found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateProject
+      tags: [projects]
+      summary: Update a project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+    delete:
+      operationId: deleteProject
+      tags: [projects]
+      summary: Delete a project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /videos:
+    get:
+      operationId: listVideos
+      tags: [videos]
+      summary: List all videos
+      parameters:
+        - name: projectId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of videos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Video"
+    post:
+      operationId: createVideo
+      tags: [videos]
+      summary: Create a new video job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VideoInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+
+  /videos/{id}:
+    get:
+      operationId: getVideo
+      tags: [videos]
+      summary: Get a video by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Video found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteVideo
+      tags: [videos]
+      summary: Delete a video
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /videos/{id}/generate-script:
+    post:
+      operationId: generateScript
+      tags: [ai]
+      summary: Generate video script using local AI
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Script generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+
+  /videos/{id}/generate-voice:
+    post:
+      operationId: generateVoice
+      tags: [ai]
+      summary: Generate voice/audio using local TTS
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Voice generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+
+  /videos/{id}/generate-thumbnail:
+    post:
+      operationId: generateThumbnail
+      tags: [ai]
+      summary: Generate AI thumbnail for video
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Thumbnail generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+
+  /videos/{id}/generate-seo:
+    post:
+      operationId: generateSeo
+      tags: [ai]
+      summary: Generate SEO title, description, tags using AI
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: SEO generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+
+  /videos/{id}/assemble:
+    post:
+      operationId: assembleVideo
+      tags: [videos]
+      summary: Assemble final video from script, voice, and assets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Video assembled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+
+  /videos/{id}/upload:
+    post:
+      operationId: uploadToYoutube
+      tags: [youtube]
+      summary: Upload video to YouTube
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Upload started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+
+  /videos/{id}/run-full-pipeline:
+    post:
+      operationId: runFullPipeline
+      tags: [videos]
+      summary: Run complete automation pipeline end-to-end
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Pipeline started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+
+  /ai/check:
+    get:
+      operationId: checkAiStatus
+      tags: [ai]
+      summary: Check local AI (Ollama) availability and models
+      responses:
+        "200":
+          description: AI status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiStatus"
+
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Get application settings
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+    patch:
+      operationId: updateSettings
+      tags: [settings]
+      summary: Update application settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SettingsUpdate"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+
+  /stats:
+    get:
+      operationId: getStats
+      tags: [projects]
+      summary: Get dashboard stats
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +397,188 @@ components:
       required:
         - status
 
+    Project:
+      type: object
+      required: [id, name, status, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        niche:
+          type: ["string", "null"]
+        language:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [active, paused, archived]
+        videoCount:
+          type: integer
+        uploadedCount:
+          type: integer
+        createdAt:
+          type: string
+
+    ProjectInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        niche:
+          type: string
+        language:
+          type: string
+
+    ProjectUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        niche:
+          type: string
+        language:
+          type: string
+        status:
+          type: string
+          enum: [active, paused, archived]
+
+    Video:
+      type: object
+      required: [id, projectId, topic, status, createdAt]
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        topic:
+          type: string
+        script:
+          type: ["string", "null"]
+        seoTitle:
+          type: ["string", "null"]
+        seoDescription:
+          type: ["string", "null"]
+        seoTags:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, generating_script, generating_voice, generating_thumbnail, assembling, ready, uploading, uploaded, failed]
+        pipelineStep:
+          type: ["string", "null"]
+        errorMessage:
+          type: ["string", "null"]
+        youtubeId:
+          type: ["string", "null"]
+        youtubeUrl:
+          type: ["string", "null"]
+        thumbnailPath:
+          type: ["string", "null"]
+        audioPath:
+          type: ["string", "null"]
+        videoPath:
+          type: ["string", "null"]
+        durationSeconds:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: ["string", "null"]
+
+    VideoInput:
+      type: object
+      required: [projectId, topic]
+      properties:
+        projectId:
+          type: integer
+        topic:
+          type: string
+          minLength: 1
+        language:
+          type: string
+
+    AiStatus:
+      type: object
+      required: [ollamaAvailable, ttsAvailable]
+      properties:
+        ollamaAvailable:
+          type: boolean
+        ollamaUrl:
+          type: string
+        models:
+          type: array
+          items:
+            type: string
+        ttsAvailable:
+          type: boolean
+        ttsEngine:
+          type: string
+
+    Settings:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: integer
+        ollamaUrl:
+          type: string
+        ollamaModel:
+          type: string
+        ttsEngine:
+          type: string
+        youtubeApiKeySet:
+          type: boolean
+        youtubeChannelId:
+          type: ["string", "null"]
+        defaultLanguage:
+          type: string
+        autoUpload:
+          type: boolean
+        videosOutputDir:
+          type: string
+
+    SettingsUpdate:
+      type: object
+      properties:
+        ollamaUrl:
+          type: string
+        ollamaModel:
+          type: string
+        ttsEngine:
+          type: string
+        youtubeApiKey:
+          type: string
+        youtubeChannelId:
+          type: string
+        defaultLanguage:
+          type: string
+        autoUpload:
+          type: boolean
+        videosOutputDir:
+          type: string
+
+    DashboardStats:
+      type: object
+      required: [totalProjects, totalVideos, uploadedVideos, pendingVideos, failedVideos]
+      properties:
+        totalProjects:
+          type: integer
+        totalVideos:
+          type: integer
+        uploadedVideos:
+          type: integer
+        pendingVideos:
+          type: integer
+        failedVideos:
+          type: integer
+        recentVideos:
+          type: array
+          items:
+            $ref: "#/components/schemas/Video"
