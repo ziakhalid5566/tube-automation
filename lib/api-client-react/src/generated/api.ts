@@ -812,7 +812,7 @@ export const getGenerateScriptUrl = (id: number,) => {
 }
 
 /**
- * @summary Generate video script using local AI
+ * @summary Generate video script using AI (short ~150 words, long ~1000+ words)
  */
 export const generateScript = async (id: number, options?: RequestInit): Promise<Video> => {
 
@@ -860,7 +860,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type GenerateScriptMutationError = ErrorType<unknown>
 
     /**
- * @summary Generate video script using local AI
+ * @summary Generate video script using AI (short ~150 words, long ~1000+ words)
  */
 export const useGenerateScript = <TError = ErrorType<unknown>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateScript>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
@@ -1232,7 +1232,7 @@ export const getRunFullPipelineUrl = (id: number,) => {
 }
 
 /**
- * @summary Run complete automation pipeline end-to-end
+ * @summary Run complete automation pipeline end-to-end (script → voice → assemble → upload)
  */
 export const runFullPipeline = async (id: number, options?: RequestInit): Promise<Video> => {
 
@@ -1280,7 +1280,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type RunFullPipelineMutationError = ErrorType<unknown>
 
     /**
- * @summary Run complete automation pipeline end-to-end
+ * @summary Run complete automation pipeline end-to-end (script → voice → assemble → upload)
  */
 export const useRunFullPipeline = <TError = ErrorType<unknown>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runFullPipeline>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}

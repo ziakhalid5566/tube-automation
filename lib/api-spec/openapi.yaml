@@ -202,7 +202,7 @@ paths:
     post:
       operationId: generateScript
       tags: [ai]
-      summary: Generate video script using local AI
+      summary: Generate video script using AI (short ~150 words, long ~1000+ words)
       parameters:
         - name: id
           in: path
@@ -316,7 +316,7 @@ paths:
     post:
       operationId: runFullPipeline
       tags: [videos]
-      summary: Run complete automation pipeline end-to-end
+      summary: Run complete automation pipeline end-to-end (script → voice → assemble → upload)
       parameters:
         - name: id
           in: path
@@ -452,7 +452,7 @@ components:
 
     Video:
       type: object
-      required: [id, projectId, topic, status, createdAt]
+      required: [id, projectId, topic, status, videoType, createdAt]
       properties:
         id:
           type: integer
@@ -471,6 +471,10 @@ components:
         status:
           type: string
           enum: [pending, generating_script, generating_voice, generating_thumbnail, assembling, ready, uploading, uploaded, failed]
+        videoType:
+          type: string
+          enum: [short, long]
+          description: "short = YouTube Shorts / Reels (≤60s), long = full video (5+ min)"
         pipelineStep:
           type: ["string", "null"]
         errorMessage:
@@ -501,8 +505,14 @@ components:
         topic:
           type: string
           minLength: 1
+          description: "Topic or short prompt — AI will expand this into a full script"
         language:
           type: string
+        videoType:
+          type: string
+          enum: [short, long]
+          default: short
+          description: "short = YouTube Shorts/Reels (≤60s), long = full video (5+ min)"
 
     AiStatus:
       type: object
@@ -554,6 +564,9 @@ components:
           type: ["string", "null"]
         defaultLanguage:
           type: string
+        defaultVideoType:
+          type: string
+          enum: [short, long]
         autoUpload:
           type: boolean
         videosOutputDir:
@@ -580,6 +593,9 @@ components:
           type: string
         defaultLanguage:
           type: string
+        defaultVideoType:
+          type: string
+          enum: [short, long]
         autoUpload:
           type: boolean
         videosOutputDir:

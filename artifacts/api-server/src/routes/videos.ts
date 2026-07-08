@@ -37,7 +37,6 @@ async function refreshProjectCounts(projectId: number) {
 }
 
 router.get("/videos", async (req, res): Promise<void> => {
-  // If query params are present but invalid, return 400
   if (Object.keys(req.query).length > 0) {
     const params = ListVideosQueryParams.safeParse(req.query);
     if (!params.success) {
@@ -119,7 +118,8 @@ router.post("/videos/:id/generate-script", async (req, res): Promise<void> => {
   await db.update(videosTable).set({ status: "generating_script", pipelineStep: "script", updatedAt: new Date() }).where(eq(videosTable.id, video.id));
 
   try {
-    const script = await generateScriptWithAI(video.topic, video.language || "urdu");
+    const videoType = (video.videoType ?? "short") as "short" | "long";
+    const script = await generateScriptWithAI(video.topic, video.language || "urdu", videoType);
     const [updated] = await db
       .update(videosTable)
       .set({ script, status: "pending", pipelineStep: null, updatedAt: new Date() })
@@ -211,12 +211,25 @@ router.post("/videos/:id/generate-thumbnail", async (req, res): Promise<void> =>
     const { execFile } = await import("child_process");
     const { promisify } = await import("util");
     const execFileAsync = promisify(execFile);
+
+    const safeTitle = (video.seoTitle || video.topic)
+      .replace(/\\/g, "\\\\")
+      .replace(/'/g, "\u2019")
+      .replace(/:/g, "\\:")
+      .substring(0, 55);
+
     await execFileAsync("ffmpeg", [
       "-f", "lavfi",
-      "-i", "color=c=0x1a1a2e:size=1280x720:rate=1",
+      "-i", "color=c=0x0d1117:size=1280x720:rate=1",
       "-vframes", "1",
       "-filter_complex",
-      `drawtext=text='${(video.seoTitle || video.topic).replace(/'/g, "\\'")}':fontcolor=white:fontsize=52:x=(w-text_w)/2:y=(h-text_h)/2:box=1:boxcolor=black@0.5:boxborderw=10`,
+      [
+        "[0:v]drawbox=x=0:y=0:w=1280:h=720:color=0x0d1117@1:t=fill[base]",
+        "[base]drawbox=x=0:y=580:w=1280:h=140:color=0x161b22@0.95:t=fill[footer]",
+        "[footer]drawbox=x=0:y=578:w=1280:h=3:color=0x58a6ff@0.9:t=fill[line]",
+        `[line]drawtext=text='${safeTitle}':fontcolor=white:fontsize=64:x=(w-text_w)/2:y=(h-text_h)/2-40:shadowx=4:shadowy=4:shadowcolor=0x00000099[titled]`,
+        "[titled]drawtext=text='AI Generated':fontcolor=0x58a6ff:fontsize=38:x=(w-text_w)/2:y=(h+text_h)/2+20[vout]",
+      ].join(";"),
       "-y", thumbnailPath,
     ]);
     const [updated] = await db
@@ -250,7 +263,8 @@ router.post("/videos/:id/assemble", async (req, res): Promise<void> => {
   await db.update(videosTable).set({ status: "assembling", pipelineStep: "assemble", updatedAt: new Date() }).where(eq(videosTable.id, video.id));
 
   try {
-    const duration = await assembleFinalVideo(video.audioPath, videoPath, video.topic);
+    const videoType = (video.videoType ?? "short") as "short" | "long";
+    const duration = await assembleFinalVideo(video.audioPath, videoPath, video.topic, videoType);
     const [updated] = await db
       .update(videosTable)
       .set({ videoPath, durationSeconds: duration, status: "ready", pipelineStep: null, updatedAt: new Date() })
@@ -356,11 +370,12 @@ router.post("/videos/:id/run-full-pipeline", async (req, res): Promise<void> => 
     .where(eq(videosTable.id, video.id))
     .returning();
 
-  runPipeline(video.id, video.topic, video.language || "urdu").catch(() => {});
+  const videoType = (video.videoType ?? "short") as "short" | "long";
+  runPipeline(video.id, video.topic, video.language || "urdu", videoType).catch(() => {});
   res.json(started);
 });
 
-async function runPipeline(videoId: number, topic: string, language: string) {
+async function runPipeline(videoId: number, topic: string, language: string, videoType: "short" | "long") {
   const settings = await getSettings();
   const outputDir = settings.videosOutputDir || "/tmp/yt-automation";
   const audioPath = path.join(outputDir, `audio_${videoId}.mp3`);
@@ -372,38 +387,55 @@ async function runPipeline(videoId: number, topic: string, language: string) {
   };
 
   try {
+    // 1. Generate script (length depends on videoType)
     await db.update(videosTable).set({ status: "generating_script", pipelineStep: "script", updatedAt: new Date() }).where(eq(videosTable.id, videoId));
-    const script = await generateScriptWithAI(topic, language);
+    const script = await generateScriptWithAI(topic, language, videoType);
     await db.update(videosTable).set({ script, updatedAt: new Date() }).where(eq(videosTable.id, videoId));
 
+    // 2. Generate SEO metadata
     const seo = await generateSEOWithAI(topic, script, language);
     await db.update(videosTable).set({ seoTitle: seo.title, seoDescription: seo.description, seoTags: seo.tags, updatedAt: new Date() }).where(eq(videosTable.id, videoId));
 
+    // 3. Generate voice over
     await db.update(videosTable).set({ status: "generating_voice", pipelineStep: "voice", updatedAt: new Date() }).where(eq(videosTable.id, videoId));
     await generateTTS(script, audioPath, language);
     await db.update(videosTable).set({ audioPath, updatedAt: new Date() }).where(eq(videosTable.id, videoId));
 
+    // 4. Generate thumbnail
     await db.update(videosTable).set({ status: "generating_thumbnail", pipelineStep: "thumbnail", updatedAt: new Date() }).where(eq(videosTable.id, videoId));
     const { execFile } = await import("child_process");
     const { promisify } = await import("util");
     const execFileAsync = promisify(execFile);
     await fs.mkdir(outputDir, { recursive: true });
     try {
+      const safeTitle = (seo.title || topic)
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\u2019")
+        .replace(/:/g, "\\:")
+        .substring(0, 55);
       await execFileAsync("ffmpeg", [
         "-f", "lavfi",
-        "-i", "color=c=0x1a1a2e:size=1280x720:rate=1",
+        "-i", "color=c=0x0d1117:size=1280x720:rate=1",
         "-vframes", "1",
         "-filter_complex",
-        `drawtext=text='${(seo.title || topic).replace(/'/g, "\\'")}':fontcolor=white:fontsize=52:x=(w-text_w)/2:y=(h-text_h)/2:box=1:boxcolor=black@0.5:boxborderw=10`,
+        [
+          "[0:v]drawbox=x=0:y=0:w=1280:h=720:color=0x0d1117@1:t=fill[base]",
+          "[base]drawbox=x=0:y=580:w=1280:h=140:color=0x161b22@0.95:t=fill[footer]",
+          "[footer]drawbox=x=0:y=578:w=1280:h=3:color=0x58a6ff@0.9:t=fill[line]",
+          `[line]drawtext=text='${safeTitle}':fontcolor=white:fontsize=64:x=(w-text_w)/2:y=(h-text_h)/2-40:shadowx=4:shadowy=4:shadowcolor=0x00000099[titled]`,
+          "[titled]drawtext=text='AI Generated':fontcolor=0x58a6ff:fontsize=38:x=(w-text_w)/2:y=(h+text_h)/2+20[vout]",
+        ].join(";"),
         "-y", thumbnailPath,
       ]);
-    } catch { /* thumbnail is optional */ }
+    } catch { /* thumbnail is optional — pipeline continues */ }
     await db.update(videosTable).set({ thumbnailPath, updatedAt: new Date() }).where(eq(videosTable.id, videoId));
 
+    // 5. Assemble final video with animated visuals
     await db.update(videosTable).set({ status: "assembling", pipelineStep: "assemble", updatedAt: new Date() }).where(eq(videosTable.id, videoId));
-    const duration = await assembleFinalVideo(audioPath, videoPath, topic);
+    const duration = await assembleFinalVideo(audioPath, videoPath, topic, videoType);
     await db.update(videosTable).set({ videoPath, durationSeconds: duration, status: "ready", pipelineStep: null, updatedAt: new Date() }).where(eq(videosTable.id, videoId));
 
+    // 6. Auto-upload if configured
     if (settings.autoUpload && settings.youtubeApiKey) {
       // auto-upload handled via upload endpoint
     }

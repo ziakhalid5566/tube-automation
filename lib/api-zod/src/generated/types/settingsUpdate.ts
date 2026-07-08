@@ -5,6 +5,7 @@
  * YouTube Automation System API
  * OpenAPI spec version: 0.1.0
  */
+import type { SettingsUpdateDefaultVideoType } from './settingsUpdateDefaultVideoType';
 
 export interface SettingsUpdate {
   aiProvider?: string;
@@ -16,6 +17,7 @@ export interface SettingsUpdate {
   youtubeApiKey?: string;
   youtubeChannelId?: string;
   defaultLanguage?: string;
+  defaultVideoType?: SettingsUpdateDefaultVideoType;
   autoUpload?: boolean;
   videosOutputDir?: string;
 }

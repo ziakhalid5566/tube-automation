@@ -5,10 +5,16 @@
  * YouTube Automation System API
  * OpenAPI spec version: 0.1.0
  */
+import type { VideoInputVideoType } from './videoInputVideoType';
 
 export interface VideoInput {
   projectId: number;
-  /** @minLength 1 */
+  /**
+     * Topic or short prompt — AI will expand this into a full script
+     * @minLength 1
+     */
   topic: string;
   language?: string;
+  /** short = YouTube Shorts/Reels (≤60s), long = full video (5+ min) */
+  videoType?: VideoInputVideoType;
 }

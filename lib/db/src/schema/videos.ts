@@ -15,6 +15,8 @@ export const videoStatusEnum = pgEnum("video_status", [
   "failed",
 ]);
 
+export const videoTypeEnum = pgEnum("video_type", ["short", "long"]);
+
 export const videosTable = pgTable("videos", {
   id: serial("id").primaryKey(),
   projectId: integer("project_id").notNull().references(() => projectsTable.id, { onDelete: "cascade" }),
@@ -24,6 +26,8 @@ export const videosTable = pgTable("videos", {
   seoDescription: text("seo_description"),
   seoTags: text("seo_tags"),
   status: videoStatusEnum("status").default("pending").notNull(),
+  // short = ≤60 seconds (Shorts/Reels), long = 5+ minutes (full video)
+  videoType: videoTypeEnum("video_type").default("short").notNull(),
   pipelineStep: text("pipeline_step"),
   errorMessage: text("error_message"),
   youtubeId: text("youtube_id"),

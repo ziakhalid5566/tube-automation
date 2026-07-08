@@ -73,6 +73,17 @@ export const VideoStatus = {
   failed: 'failed',
 } as const;
 
+/**
+ * short = YouTube Shorts / Reels (≤60s), long = full video (5+ min)
+ */
+export type VideoVideoType = typeof VideoVideoType[keyof typeof VideoVideoType];
+
+
+export const VideoVideoType = {
+  short: 'short',
+  long: 'long',
+} as const;
+
 export interface Video {
   id: number;
   projectId: number;
@@ -86,6 +97,8 @@ export interface Video {
   /** @nullable */
   seoTags?: string | null;
   status: VideoStatus;
+  /** short = YouTube Shorts / Reels (≤60s), long = full video (5+ min) */
+  videoType: VideoVideoType;
   /** @nullable */
   pipelineStep?: string | null;
   /** @nullable */
@@ -107,11 +120,27 @@ export interface Video {
   updatedAt?: string | null;
 }
 
+/**
+ * short = YouTube Shorts/Reels (≤60s), long = full video (5+ min)
+ */
+export type VideoInputVideoType = typeof VideoInputVideoType[keyof typeof VideoInputVideoType];
+
+
+export const VideoInputVideoType = {
+  short: 'short',
+  long: 'long',
+} as const;
+
 export interface VideoInput {
   projectId: number;
-  /** @minLength 1 */
+  /**
+     * Topic or short prompt — AI will expand this into a full script
+     * @minLength 1
+     */
   topic: string;
   language?: string;
+  /** short = YouTube Shorts/Reels (≤60s), long = full video (5+ min) */
+  videoType?: VideoInputVideoType;
 }
 
 export type AiStatusHuggingfaceKeySource = typeof AiStatusHuggingfaceKeySource[keyof typeof AiStatusHuggingfaceKeySource];
@@ -134,6 +163,14 @@ export interface AiStatus {
   ttsEngine?: string;
 }
 
+export type SettingsDefaultVideoType = typeof SettingsDefaultVideoType[keyof typeof SettingsDefaultVideoType];
+
+
+export const SettingsDefaultVideoType = {
+  short: 'short',
+  long: 'long',
+} as const;
+
 export interface Settings {
   id: number;
   aiProvider?: string;
@@ -147,9 +184,18 @@ export interface Settings {
   /** @nullable */
   youtubeChannelId?: string | null;
   defaultLanguage?: string;
+  defaultVideoType?: SettingsDefaultVideoType;
   autoUpload?: boolean;
   videosOutputDir?: string;
 }
+
+export type SettingsUpdateDefaultVideoType = typeof SettingsUpdateDefaultVideoType[keyof typeof SettingsUpdateDefaultVideoType];
+
+
+export const SettingsUpdateDefaultVideoType = {
+  short: 'short',
+  long: 'long',
+} as const;
 
 export interface SettingsUpdate {
   aiProvider?: string;
@@ -161,6 +207,7 @@ export interface SettingsUpdate {
   youtubeApiKey?: string;
   youtubeChannelId?: string;
   defaultLanguage?: string;
+  defaultVideoType?: SettingsUpdateDefaultVideoType;
   autoUpload?: boolean;
   videosOutputDir?: string;
 }

@@ -134,6 +134,7 @@ export const ListVideosResponseItem = zod.object({
   "seoDescription": zod.string().nullish(),
   "seoTags": zod.string().nullish(),
   "status": zod.enum(['pending', 'generating_script', 'generating_voice', 'generating_thumbnail', 'assembling', 'ready', 'uploading', 'uploaded', 'failed']),
+  "videoType": zod.enum(['short', 'long']).describe('short = YouTube Shorts \/ Reels (≤60s), long = full video (5+ min)'),
   "pipelineStep": zod.string().nullish(),
   "errorMessage": zod.string().nullish(),
   "youtubeId": zod.string().nullish(),
@@ -152,12 +153,13 @@ export const ListVideosResponse = zod.array(ListVideosResponseItem)
  * @summary Create a new video job
  */
 
-
+export const createVideoBodyVideoTypeDefault = `short`;
 
 export const CreateVideoBody = zod.object({
   "projectId": zod.number(),
-  "topic": zod.string().min(1),
-  "language": zod.string().optional()
+  "topic": zod.string().min(1).describe('Topic or short prompt — AI will expand this into a full script'),
+  "language": zod.string().optional(),
+  "videoType": zod.enum(['short', 'long']).default(createVideoBodyVideoTypeDefault).describe('short = YouTube Shorts\/Reels (≤60s), long = full video (5+ min)')
 })
 
 export const CreateVideoResponse = zod.object({
@@ -169,6 +171,7 @@ export const CreateVideoResponse = zod.object({
   "seoDescription": zod.string().nullish(),
   "seoTags": zod.string().nullish(),
   "status": zod.enum(['pending', 'generating_script', 'generating_voice', 'generating_thumbnail', 'assembling', 'ready', 'uploading', 'uploaded', 'failed']),
+  "videoType": zod.enum(['short', 'long']).describe('short = YouTube Shorts \/ Reels (≤60s), long = full video (5+ min)'),
   "pipelineStep": zod.string().nullish(),
   "errorMessage": zod.string().nullish(),
   "youtubeId": zod.string().nullish(),
@@ -198,6 +201,7 @@ export const GetVideoResponse = zod.object({
   "seoDescription": zod.string().nullish(),
   "seoTags": zod.string().nullish(),
   "status": zod.enum(['pending', 'generating_script', 'generating_voice', 'generating_thumbnail', 'assembling', 'ready', 'uploading', 'uploaded', 'failed']),
+  "videoType": zod.enum(['short', 'long']).describe('short = YouTube Shorts \/ Reels (≤60s), long = full video (5+ min)'),
   "pipelineStep": zod.string().nullish(),
   "errorMessage": zod.string().nullish(),
   "youtubeId": zod.string().nullish(),
@@ -222,7 +226,7 @@ export const DeleteVideoResponse = zod.void()
 
 
 /**
- * @summary Generate video script using local AI
+ * @summary Generate video script using AI (short ~150 words, long ~1000+ words)
  */
 export const GenerateScriptParams = zod.object({
   "id": zod.coerce.number()
@@ -237,6 +241,7 @@ export const GenerateScriptResponse = zod.object({
   "seoDescription": zod.string().nullish(),
   "seoTags": zod.string().nullish(),
   "status": zod.enum(['pending', 'generating_script', 'generating_voice', 'generating_thumbnail', 'assembling', 'ready', 'uploading', 'uploaded', 'failed']),
+  "videoType": zod.enum(['short', 'long']).describe('short = YouTube Shorts \/ Reels (≤60s), long = full video (5+ min)'),
   "pipelineStep": zod.string().nullish(),
   "errorMessage": zod.string().nullish(),
   "youtubeId": zod.string().nullish(),
@@ -266,6 +271,7 @@ export const GenerateVoiceResponse = zod.object({
   "seoDescription": zod.string().nullish(),
   "seoTags": zod.string().nullish(),
   "status": zod.enum(['pending', 'generating_script', 'generating_voice', 'generating_thumbnail', 'assembling', 'ready', 'uploading', 'uploaded', 'failed']),
+  "videoType": zod.enum(['short', 'long']).describe('short = YouTube Shorts \/ Reels (≤60s), long = full video (5+ min)'),
   "pipelineStep": zod.string().nullish(),
   "errorMessage": zod.string().nullish(),
   "youtubeId": zod.string().nullish(),
@@ -295,6 +301,7 @@ export const GenerateThumbnailResponse = zod.object({
   "seoDescription": zod.string().nullish(),
   "seoTags": zod.string().nullish(),
   "status": zod.enum(['pending', 'generating_script', 'generating_voice', 'generating_thumbnail', 'assembling', 'ready', 'uploading', 'uploaded', 'failed']),
+  "videoType": zod.enum(['short', 'long']).describe('short = YouTube Shorts \/ Reels (≤60s), long = full video (5+ min)'),
   "pipelineStep": zod.string().nullish(),
   "errorMessage": zod.string().nullish(),
   "youtubeId": zod.string().nullish(),
@@ -324,6 +331,7 @@ export const GenerateSeoResponse = zod.object({
   "seoDescription": zod.string().nullish(),
   "seoTags": zod.string().nullish(),
   "status": zod.enum(['pending', 'generating_script', 'generating_voice', 'generating_thumbnail', 'assembling', 'ready', 'uploading', 'uploaded', 'failed']),
+  "videoType": zod.enum(['short', 'long']).describe('short = YouTube Shorts \/ Reels (≤60s), long = full video (5+ min)'),
   "pipelineStep": zod.string().nullish(),
   "errorMessage": zod.string().nullish(),
   "youtubeId": zod.string().nullish(),
@@ -353,6 +361,7 @@ export const AssembleVideoResponse = zod.object({
   "seoDescription": zod.string().nullish(),
   "seoTags": zod.string().nullish(),
   "status": zod.enum(['pending', 'generating_script', 'generating_voice', 'generating_thumbnail', 'assembling', 'ready', 'uploading', 'uploaded', 'failed']),
+  "videoType": zod.enum(['short', 'long']).describe('short = YouTube Shorts \/ Reels (≤60s), long = full video (5+ min)'),
   "pipelineStep": zod.string().nullish(),
   "errorMessage": zod.string().nullish(),
   "youtubeId": zod.string().nullish(),
@@ -382,6 +391,7 @@ export const UploadToYoutubeResponse = zod.object({
   "seoDescription": zod.string().nullish(),
   "seoTags": zod.string().nullish(),
   "status": zod.enum(['pending', 'generating_script', 'generating_voice', 'generating_thumbnail', 'assembling', 'ready', 'uploading', 'uploaded', 'failed']),
+  "videoType": zod.enum(['short', 'long']).describe('short = YouTube Shorts \/ Reels (≤60s), long = full video (5+ min)'),
   "pipelineStep": zod.string().nullish(),
   "errorMessage": zod.string().nullish(),
   "youtubeId": zod.string().nullish(),
@@ -396,7 +406,7 @@ export const UploadToYoutubeResponse = zod.object({
 
 
 /**
- * @summary Run complete automation pipeline end-to-end
+ * @summary Run complete automation pipeline end-to-end (script → voice → assemble → upload)
  */
 export const RunFullPipelineParams = zod.object({
   "id": zod.coerce.number()
@@ -411,6 +421,7 @@ export const RunFullPipelineResponse = zod.object({
   "seoDescription": zod.string().nullish(),
   "seoTags": zod.string().nullish(),
   "status": zod.enum(['pending', 'generating_script', 'generating_voice', 'generating_thumbnail', 'assembling', 'ready', 'uploading', 'uploaded', 'failed']),
+  "videoType": zod.enum(['short', 'long']).describe('short = YouTube Shorts \/ Reels (≤60s), long = full video (5+ min)'),
   "pipelineStep": zod.string().nullish(),
   "errorMessage": zod.string().nullish(),
   "youtubeId": zod.string().nullish(),
@@ -454,6 +465,7 @@ export const GetSettingsResponse = zod.object({
   "youtubeApiKeySet": zod.boolean().optional(),
   "youtubeChannelId": zod.string().nullish(),
   "defaultLanguage": zod.string().optional(),
+  "defaultVideoType": zod.enum(['short', 'long']).optional(),
   "autoUpload": zod.boolean().optional(),
   "videosOutputDir": zod.string().optional()
 })
@@ -472,6 +484,7 @@ export const UpdateSettingsBody = zod.object({
   "youtubeApiKey": zod.string().optional(),
   "youtubeChannelId": zod.string().optional(),
   "defaultLanguage": zod.string().optional(),
+  "defaultVideoType": zod.enum(['short', 'long']).optional(),
   "autoUpload": zod.boolean().optional(),
   "videosOutputDir": zod.string().optional()
 })
@@ -488,6 +501,7 @@ export const UpdateSettingsResponse = zod.object({
   "youtubeApiKeySet": zod.boolean().optional(),
   "youtubeChannelId": zod.string().nullish(),
   "defaultLanguage": zod.string().optional(),
+  "defaultVideoType": zod.enum(['short', 'long']).optional(),
   "autoUpload": zod.boolean().optional(),
   "videosOutputDir": zod.string().optional()
 })
@@ -511,6 +525,7 @@ export const GetStatsResponse = zod.object({
   "seoDescription": zod.string().nullish(),
   "seoTags": zod.string().nullish(),
   "status": zod.enum(['pending', 'generating_script', 'generating_voice', 'generating_thumbnail', 'assembling', 'ready', 'uploading', 'uploaded', 'failed']),
+  "videoType": zod.enum(['short', 'long']).describe('short = YouTube Shorts \/ Reels (≤60s), long = full video (5+ min)'),
   "pipelineStep": zod.string().nullish(),
   "errorMessage": zod.string().nullish(),
   "youtubeId": zod.string().nullish(),

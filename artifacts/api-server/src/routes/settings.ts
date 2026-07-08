@@ -28,6 +28,7 @@ function maskSettings(s: typeof settingsTable.$inferSelect) {
     youtubeApiKeySet: !!s.youtubeApiKey,
     youtubeChannelId: s.youtubeChannelId,
     defaultLanguage: s.defaultLanguage,
+    defaultVideoType: s.defaultVideoType ?? "short",
     autoUpload: s.autoUpload,
     videosOutputDir: s.videosOutputDir,
   };

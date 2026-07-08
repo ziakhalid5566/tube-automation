@@ -5,6 +5,7 @@
  * YouTube Automation System API
  * OpenAPI spec version: 0.1.0
  */
+import type { SettingsDefaultVideoType } from './settingsDefaultVideoType';
 
 export interface Settings {
   id: number;
@@ -19,6 +20,7 @@ export interface Settings {
   /** @nullable */
   youtubeChannelId?: string | null;
   defaultLanguage?: string;
+  defaultVideoType?: SettingsDefaultVideoType;
   autoUpload?: boolean;
   videosOutputDir?: string;
 }

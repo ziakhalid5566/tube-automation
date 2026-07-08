@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { VideoStatus } from './videoStatus';
+import type { VideoVideoType } from './videoVideoType';
 
 export interface Video {
   id: number;
@@ -20,6 +21,8 @@ export interface Video {
   /** @nullable */
   seoTags?: string | null;
   status: VideoStatus;
+  /** short = YouTube Shorts / Reels (≤60s), long = full video (5+ min) */
+  videoType: VideoVideoType;
   /** @nullable */
   pipelineStep?: string | null;
   /** @nullable */
