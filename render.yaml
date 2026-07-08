@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: tube-automation-api
+    runtime: node
+    region: singapore  # قریب ترین region — چاہیں تو frankfurt یا ohio بھی لکھ سکتے ہیں
+    plan: free
+    buildCommand: npm install -g pnpm && pnpm install --frozen-lockfile && pnpm --filter @workspace/api-server run build
+    startCommand: node --enable-source-maps artifacts/api-server/dist/index.mjs
+    healthCheckPath: /api/healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tube-automation-db
+          property: connectionString
+      - key: HUGGINGFACE_API_KEY
+        sync: false   # Render dashboard میں manually enter کریں گے
+      - key: SESSION_SECRET
+        generateValue: true
+
+databases:
+  - name: tube-automation-db
+    databaseName: tube_automation
+    plan: free
+    region: singapore
