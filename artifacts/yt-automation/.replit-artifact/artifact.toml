@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "YouTube Automation System"
+version = "1.0.0"
+id = "artifacts/yt-automation"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25363
+
+[services.development]
+run = "pnpm --filter @workspace/yt-automation run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/yt-automation", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/yt-automation/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25363"
+BASE_PATH = "/"
