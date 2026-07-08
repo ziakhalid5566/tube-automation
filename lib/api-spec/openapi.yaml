@@ -10,6 +10,10 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: videos
+    description: Video generation operations
+  - name: settings
+    description: Settings operations
 paths:
   /healthz:
     get:
@@ -24,6 +28,119 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /videos:
+    get:
+      operationId: listVideos
+      tags: [videos]
+      summary: List all videos
+      responses:
+        "200":
+          description: List of videos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Video"
+    post:
+      operationId: createVideo
+      tags: [videos]
+      summary: Create and generate a video
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VideoInput"
+      responses:
+        "201":
+          description: Video created and generation started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /videos/{id}:
+    get:
+      operationId: getVideo
+      tags: [videos]
+      summary: Get a video by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Video details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteVideo
+      tags: [videos]
+      summary: Delete a video
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted successfully
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Get current settings
+      responses:
+        "200":
+          description: Current settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+    put:
+      operationId: updateSettings
+      tags: [settings]
+      summary: Update settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SettingsUpdate"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +151,107 @@ components:
       required:
         - status
 
+    VideoType:
+      type: string
+      enum: [short, long]
+
+    VideoStatus:
+      type: string
+      enum:
+        - pending
+        - generating_script
+        - generating_voice
+        - assembling_video
+        - completed
+        - failed
+
+    Video:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        prompt:
+          type: string
+        videoType:
+          $ref: "#/components/schemas/VideoType"
+        status:
+          $ref: "#/components/schemas/VideoStatus"
+        scriptContent:
+          type: string
+          nullable: true
+        audioPath:
+          type: string
+          nullable: true
+        videoPath:
+          type: string
+          nullable: true
+        thumbnailPath:
+          type: string
+          nullable: true
+        errorMessage:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - prompt
+        - videoType
+        - status
+        - createdAt
+        - updatedAt
+
+    VideoInput:
+      type: object
+      properties:
+        title:
+          type: string
+        prompt:
+          type: string
+        videoType:
+          $ref: "#/components/schemas/VideoType"
+      required:
+        - title
+        - prompt
+
+    Settings:
+      type: object
+      properties:
+        id:
+          type: integer
+        huggingfaceModel:
+          type: string
+        defaultVideoType:
+          $ref: "#/components/schemas/VideoType"
+        voiceId:
+          type: string
+      required:
+        - id
+        - huggingfaceModel
+        - defaultVideoType
+        - voiceId
+
+    SettingsUpdate:
+      type: object
+      properties:
+        huggingfaceModel:
+          type: string
+        defaultVideoType:
+          $ref: "#/components/schemas/VideoType"
+        voiceId:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
