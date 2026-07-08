@@ -15,7 +15,7 @@ async function ensureSettings() {
 }
 
 function maskSettings(s: typeof settingsTable.$inferSelect) {
-  const hfKeyFromEnv = !s.huggingfaceApiKey && !!process.env.HF_ACCESS_KEY_ID;
+  const hfKeyFromEnv = !s.huggingfaceApiKey && !!(process.env.HUGGINGFACE_API_KEY || process.env.HF_ACCESS_KEY_ID);
   return {
     id: s.id,
     aiProvider: s.aiProvider,

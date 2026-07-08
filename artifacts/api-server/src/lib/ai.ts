@@ -50,9 +50,14 @@ export async function checkOllama(): Promise<{ available: boolean; models: strin
 
 // ── HuggingFace Inference API ─────────────────────────────────────────────────
 
-/** Resolve HF API key: DB setting takes priority, then env var HF_ACCESS_KEY_ID */
+/**
+ * Resolve HF API key (priority order):
+ *   1. DB setting (user explicitly saved a key)
+ *   2. HUGGINGFACE_API_KEY env var (hf_xxx inference token)
+ *   3. HF_ACCESS_KEY_ID env var (S3 access key — kept as last resort)
+ */
 function resolveHfApiKey(settingsKey: string | null | undefined): string | null {
-  return settingsKey || process.env.HF_ACCESS_KEY_ID || null;
+  return settingsKey || process.env.HUGGINGFACE_API_KEY || process.env.HF_ACCESS_KEY_ID || null;
 }
 
 export async function callHuggingFace(prompt: string, model?: string): Promise<string> {
@@ -60,10 +65,14 @@ export async function callHuggingFace(prompt: string, model?: string): Promise<s
   const apiKey = resolveHfApiKey(settings.huggingfaceApiKey);
   if (!apiKey) throw new Error("HuggingFace API key not set — add it in Settings or set HF_ACCESS_KEY_ID env var");
 
-  const hfModel = model || settings.huggingfaceModel || "mistralai/Mistral-7B-Instruct-v0.3";
+  // Default to Llama-3.1-8B — confirmed working with HF router auto-routing.
+  // Mistral-7B-Instruct-v0.3 is not a "chat model" on the router.
+  const hfModel = model || settings.huggingfaceModel || "meta-llama/Llama-3.1-8B-Instruct";
 
+  // Use the HuggingFace router with auto-routing — the old api-inference subdomain
+  // is network-blocked in many hosted environments; the router endpoint works everywhere.
   const response = await fetch(
-    `https://api-inference.huggingface.co/models/${hfModel}/v1/chat/completions`,
+    "https://router.huggingface.co/v1/chat/completions",
     {
       method: "POST",
       headers: {

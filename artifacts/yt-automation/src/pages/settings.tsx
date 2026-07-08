@@ -222,12 +222,13 @@ export default function Settings() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-muted-foreground font-mono">Model ID</label>
                   <Input value={formData.huggingfaceModel} onChange={e => set("huggingfaceModel", e.target.value)}
-                    placeholder="mistralai/Mistral-7B-Instruct-v0.3" className="font-mono bg-background text-xs" />
+                    placeholder="meta-llama/Llama-3.1-8B-Instruct" className="font-mono bg-background text-xs" />
                   <p className="text-xs text-muted-foreground">
-                    Popular: <span className="text-primary cursor-pointer" onClick={() => set("huggingfaceModel", "mistralai/Mistral-7B-Instruct-v0.3")}>Mistral-7B</span>
-                    {" · "}<span className="text-primary cursor-pointer" onClick={() => set("huggingfaceModel", "meta-llama/Llama-3.1-8B-Instruct")}>Llama-3.1-8B</span>
-                    {" · "}<span className="text-primary cursor-pointer" onClick={() => set("huggingfaceModel", "Qwen/Qwen2.5-7B-Instruct")}>Qwen2.5-7B</span>
-                    {" · "}<span className="text-primary cursor-pointer" onClick={() => set("huggingfaceModel", "google/gemma-3-9b-it")}>Gemma-3-9B</span>
+                    <span className="text-accent">✓ Verified:</span>
+                    {" "}<span className="text-primary cursor-pointer" onClick={() => set("huggingfaceModel", "meta-llama/Llama-3.1-8B-Instruct")}>Llama-3.1-8B</span>
+                    {" · "}<span className="text-primary cursor-pointer" onClick={() => set("huggingfaceModel", "meta-llama/Llama-3.3-70B-Instruct")}>Llama-3.3-70B</span>
+                    {" · "}<span className="text-primary cursor-pointer" onClick={() => set("huggingfaceModel", "Qwen/Qwen2.5-72B-Instruct")}>Qwen2.5-72B</span>
+                    {" · "}<span className="text-primary cursor-pointer" onClick={() => set("huggingfaceModel", "deepseek-ai/DeepSeek-R1")}>DeepSeek-R1</span>
                   </p>
                 </div>
               </div>
