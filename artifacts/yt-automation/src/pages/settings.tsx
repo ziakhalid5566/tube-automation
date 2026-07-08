@@ -197,13 +197,27 @@ export default function Settings() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground font-mono">
-                    API Key {settings?.huggingfaceApiKeySet && <span className="text-accent text-xs">(saved ✓)</span>}
+                  <label className="text-sm font-medium text-muted-foreground font-mono flex items-center gap-2">
+                    API Key
+                    {settings?.huggingfaceApiKeyFromEnv && (
+                      <span className="text-xs font-mono bg-accent/20 text-accent px-2 py-0.5 rounded border border-accent/30">
+                        🔑 loaded from environment
+                      </span>
+                    )}
+                    {settings?.huggingfaceApiKeySet && !settings?.huggingfaceApiKeyFromEnv && (
+                      <span className="text-accent text-xs">(saved ✓)</span>
+                    )}
                   </label>
                   <Input type="password" value={formData.huggingfaceApiKey}
                     onChange={e => set("huggingfaceApiKey", e.target.value)}
-                    placeholder={settings?.huggingfaceApiKeySet ? "••••••••••••••••••• (leave blank to keep)" : "hf_xxxxxxxxxxxxxxxxxxxx"}
-                    className="font-mono bg-background" />
+                    placeholder={
+                      settings?.huggingfaceApiKeyFromEnv
+                        ? "Using HF_ACCESS_KEY_ID env var (override by entering a new key)"
+                        : settings?.huggingfaceApiKeySet
+                          ? "••••••••••••••••••• (leave blank to keep)"
+                          : "hf_xxxxxxxxxxxxxxxxxxxx or HFAKxxxxxxxxx"
+                    }
+                    className="font-mono bg-background text-xs" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-muted-foreground font-mono">Model ID</label>

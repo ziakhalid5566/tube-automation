@@ -130,6 +130,7 @@ export interface Settings {
   ollamaUrl?: string;
   ollamaModel?: string;
   huggingfaceApiKeySet?: boolean;
+  huggingfaceApiKeyFromEnv?: boolean;
   huggingfaceModel?: string;
   ttsEngine?: string;
   youtubeApiKeySet?: boolean;

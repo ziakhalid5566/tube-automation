@@ -37,6 +37,7 @@ router.get("/ai/check", async (_req, res): Promise<void> => {
     models: ollamaResult.models,
     huggingfaceAvailable: hfResult.available,
     huggingfaceModel: hfResult.model,
+    huggingfaceKeySource: hfResult.keySource,
     ttsAvailable,
     ttsEngine,
   });

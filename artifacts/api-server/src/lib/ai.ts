@@ -50,10 +50,15 @@ export async function checkOllama(): Promise<{ available: boolean; models: strin
 
 // ── HuggingFace Inference API ─────────────────────────────────────────────────
 
+/** Resolve HF API key: DB setting takes priority, then env var HF_ACCESS_KEY_ID */
+function resolveHfApiKey(settingsKey: string | null | undefined): string | null {
+  return settingsKey || process.env.HF_ACCESS_KEY_ID || null;
+}
+
 export async function callHuggingFace(prompt: string, model?: string): Promise<string> {
   const settings = await getSettings();
-  const apiKey = settings.huggingfaceApiKey;
-  if (!apiKey) throw new Error("HuggingFace API key not set in Settings");
+  const apiKey = resolveHfApiKey(settings.huggingfaceApiKey);
+  if (!apiKey) throw new Error("HuggingFace API key not set — add it in Settings or set HF_ACCESS_KEY_ID env var");
 
   const hfModel = model || settings.huggingfaceModel || "mistralai/Mistral-7B-Instruct-v0.3";
 
@@ -86,18 +91,20 @@ export async function callHuggingFace(prompt: string, model?: string): Promise<s
   return data.choices?.[0]?.message?.content?.trim() || "";
 }
 
-export async function checkHuggingFace(): Promise<{ available: boolean; model: string }> {
+export async function checkHuggingFace(): Promise<{ available: boolean; model: string; keySource: "db" | "env" | "none" }> {
   const settings = await getSettings();
-  if (!settings.huggingfaceApiKey) return { available: false, model: "" };
+  const dbKey = settings.huggingfaceApiKey;
+  const apiKey = resolveHfApiKey(dbKey);
+  const keySource = dbKey ? "db" : apiKey ? "env" : "none";
+  if (!apiKey) return { available: false, model: "", keySource: "none" };
   try {
-    // Quick auth check
     const r = await fetch("https://huggingface.co/api/whoami-v2", {
-      headers: { Authorization: `Bearer ${settings.huggingfaceApiKey}` },
+      headers: { Authorization: `Bearer ${apiKey}` },
       signal: AbortSignal.timeout(5000),
     });
-    return { available: r.ok, model: settings.huggingfaceModel || "" };
+    return { available: r.ok, model: settings.huggingfaceModel || "", keySource };
   } catch {
-    return { available: false, model: settings.huggingfaceModel || "" };
+    return { available: false, model: settings.huggingfaceModel || "", keySource };
   }
 }
 

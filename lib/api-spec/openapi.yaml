@@ -539,6 +539,8 @@ components:
           type: string
         huggingfaceApiKeySet:
           type: boolean
+        huggingfaceApiKeyFromEnv:
+          type: boolean
         huggingfaceModel:
           type: string
         ttsEngine:

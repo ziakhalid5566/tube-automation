@@ -15,12 +15,14 @@ async function ensureSettings() {
 }
 
 function maskSettings(s: typeof settingsTable.$inferSelect) {
+  const hfKeyFromEnv = !s.huggingfaceApiKey && !!process.env.HF_ACCESS_KEY_ID;
   return {
     id: s.id,
     aiProvider: s.aiProvider,
     ollamaUrl: s.ollamaUrl,
     ollamaModel: s.ollamaModel,
-    huggingfaceApiKeySet: !!s.huggingfaceApiKey,
+    huggingfaceApiKeySet: !!(s.huggingfaceApiKey || process.env.HF_ACCESS_KEY_ID),
+    huggingfaceApiKeyFromEnv: hfKeyFromEnv,
     huggingfaceModel: s.huggingfaceModel,
     ttsEngine: s.ttsEngine,
     youtubeApiKeySet: !!s.youtubeApiKey,
