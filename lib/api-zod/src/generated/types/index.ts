@@ -7,6 +7,7 @@
  */
 
 export * from './aiStatus';
+export * from './aiStatusHuggingfaceKeySource';
 export * from './dashboardStats';
 export * from './healthStatus';
 export * from './listVideosParams';

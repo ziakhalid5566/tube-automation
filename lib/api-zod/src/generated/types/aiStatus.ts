@@ -5,6 +5,7 @@
  * YouTube Automation System API
  * OpenAPI spec version: 0.1.0
  */
+import type { AiStatusHuggingfaceKeySource } from './aiStatusHuggingfaceKeySource';
 
 export interface AiStatus {
   ollamaAvailable: boolean;
@@ -12,6 +13,7 @@ export interface AiStatus {
   models?: string[];
   huggingfaceAvailable: boolean;
   huggingfaceModel?: string;
+  huggingfaceKeySource?: AiStatusHuggingfaceKeySource;
   ttsAvailable: boolean;
   ttsEngine?: string;
 }

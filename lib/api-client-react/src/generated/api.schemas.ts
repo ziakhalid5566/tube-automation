@@ -114,12 +114,22 @@ export interface VideoInput {
   language?: string;
 }
 
+export type AiStatusHuggingfaceKeySource = typeof AiStatusHuggingfaceKeySource[keyof typeof AiStatusHuggingfaceKeySource];
+
+
+export const AiStatusHuggingfaceKeySource = {
+  db: 'db',
+  env: 'env',
+  none: 'none',
+} as const;
+
 export interface AiStatus {
   ollamaAvailable: boolean;
   ollamaUrl?: string;
   models?: string[];
   huggingfaceAvailable: boolean;
   huggingfaceModel?: string;
+  huggingfaceKeySource?: AiStatusHuggingfaceKeySource;
   ttsAvailable: boolean;
   ttsEngine?: string;
 }

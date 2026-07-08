@@ -520,6 +520,9 @@ components:
           type: boolean
         huggingfaceModel:
           type: string
+        huggingfaceKeySource:
+          type: string
+          enum: [db, env, none]
         ttsAvailable:
           type: boolean
         ttsEngine:

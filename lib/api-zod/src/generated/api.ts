@@ -433,6 +433,7 @@ export const CheckAiStatusResponse = zod.object({
   "models": zod.array(zod.string()).optional(),
   "huggingfaceAvailable": zod.boolean(),
   "huggingfaceModel": zod.string().optional(),
+  "huggingfaceKeySource": zod.enum(['db', 'env', 'none']).optional(),
   "ttsAvailable": zod.boolean(),
   "ttsEngine": zod.string().optional()
 })
