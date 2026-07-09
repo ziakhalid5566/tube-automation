@@ -1,0 +1,2 @@
+- [Render deployment lessons](render-deployment.md) — key fixes needed for pnpm monorepo on Render free tier
+- [DB SSL requirement](db-ssl.md) — Render external PostgreSQL URL requires SSL; pool must set ssl: {rejectUnauthorized:false} in production
