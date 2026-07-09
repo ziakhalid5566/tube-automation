@@ -10,7 +10,13 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+export const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  // Render's external PostgreSQL URL requires SSL; disabled locally for dev
+  ssl: process.env.DATABASE_SSL === "true" || process.env.NODE_ENV === "production"
+    ? { rejectUnauthorized: false }
+    : false,
+});
 export const db = drizzle(pool, { schema });
 
 export * from "./schema";
