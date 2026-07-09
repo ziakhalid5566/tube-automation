@@ -6,16 +6,19 @@ export CI=true
 echo "=== Node version ==="
 node --version
 
-echo "=== Installing pnpm ==="
-npm install -g pnpm@10
+echo "=== npm version ==="
+npm --version
+
+echo "=== Enabling corepack ==="
+corepack enable || true
+
+echo "=== Installing dependencies via npx pnpm ==="
+npx --yes pnpm@10 install
 
 echo "=== pnpm version ==="
-pnpm --version
-
-echo "=== Installing dependencies ==="
-pnpm install
+npx pnpm@10 --version
 
 echo "=== Building API server ==="
-pnpm --filter @workspace/api-server run build
+npx pnpm@10 --filter @workspace/api-server run build
 
 echo "=== Build complete ==="
