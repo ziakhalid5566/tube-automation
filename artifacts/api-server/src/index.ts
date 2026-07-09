@@ -17,8 +17,9 @@ if (Number.isNaN(port) || port <= 0) {
 }
 
 /**
- * Ensure required DB enums and tables exist before accepting traffic.
+ * Ensure required DB enums and tables exist.
  * Idempotent — safe to run on every startup.
+ * Runs after the server starts listening so health checks pass immediately.
  */
 async function runMigrations(): Promise<void> {
   const client = await pool.connect();
@@ -63,17 +64,17 @@ async function runMigrations(): Promise<void> {
   }
 }
 
-runMigrations()
-  .then(() => {
-    app.listen(port, "0.0.0.0", (err) => {
-      if (err) {
-        logger.error({ err }, "Error listening on port");
-        process.exit(1);
-      }
-      logger.info({ port }, "Server listening");
-    });
-  })
-  .catch((err) => {
-    logger.error({ err }, "Failed to run DB migrations — aborting startup");
+// Start listening first so health checks pass, then run migrations
+app.listen(port, "0.0.0.0", (err) => {
+  if (err) {
+    logger.error({ err }, "Error listening on port");
     process.exit(1);
+  }
+
+  logger.info({ port }, "Server listening");
+
+  // Run migrations after server is up — errors are logged but don't crash the process
+  runMigrations().catch((migErr) => {
+    logger.error({ err: migErr }, "DB migration failed — endpoints may return errors until resolved");
   });
+});
