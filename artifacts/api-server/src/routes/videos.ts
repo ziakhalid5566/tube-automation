@@ -219,10 +219,14 @@ router.delete("/videos/:id", async (req, res) => {
       return;
     }
 
-    // Delete associated files
+    // Delete associated files — confined to OUTPUT_DIR to prevent path traversal
+    const safeOutputDir = path.resolve(getOutputDir());
     for (const filePath of [video.audioPath, video.videoPath, video.thumbnailPath]) {
-      if (filePath && fs.existsSync(filePath)) {
-        try { fs.unlinkSync(filePath); } catch {}
+      if (filePath) {
+        const resolvedPath = path.resolve(filePath);
+        if (resolvedPath.startsWith(safeOutputDir + path.sep) && fs.existsSync(resolvedPath)) {
+          try { fs.unlinkSync(resolvedPath); } catch {}
+        }
       }
     }
 
